@@ -7,6 +7,7 @@
     <link rel="icon" href="public/favicon.ico" type="image/x-icon">
 
     <!-- Fonts -->
+    <script src="https://use.fontawesome.com/5c5b56339a.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Luckiest+Guy" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato|Montserrat" rel="stylesheet">
@@ -15,25 +16,75 @@
     <link rel="stylesheet" type="text/css" href="public/style.css">
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <div class="header">
         <h1>Vue.js Poster Store</h1>
+        <form class="searchbar" @submit.prevent="onSubmit">
+            <input v-model="searchTerm" type="text" placeholder="search for posters">
+            <input type="submit" value="search" class="btn">
+        </form>
     </div>
     <div class="main">
         <div class="products">
-            <p>Products go here.</p>
-        </div>
+            <div class="search-results">
+                <p v-if="loadingDone">
+                    Found <strong>{{ results.length }}</strong> results for <strong>{{ lastSearch }}</strong>
+                </p>
+                <p v-else-if="loadingDone !== null">
+                    <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+                    Loading...
+                </p>
+            </div>
+
+            <!-- Product List -->
+            <div class="product" v-for="(item, index) in items">
+                <div>
+                    <div class="product-image">
+                        <img :src="item.link">
+                    </div>
+                </div>
+                <div>
+                    <h4 class="product-title">{{ item.title }}</h4>
+                    <p>Price: {{ price | currency }}</p>
+                    <button class="add-to-cart btn" @click="addItem(index)">Add to Cart</button>
+                </div>
+            </div><!-- end Product List -->
+
+            <div id="product-list-bottom">
+                <!-- detect when the user is at the bottom of the screen -->
+                <div v-if="noMoreItems">
+                    <h3>No more results</h3>
+                </div>
+            </div><!-- end of the product list -->
+
+        </div><!-- end .products -->
+
         <div class="cart">
             <h2>Shopping Cart</h2>
             <div>
-                No items in the cart.
+                <transition-group name="fade" tag="ul"><!-- Group transition -->
+                    <li class="cart-item" v-for="item in cart" :key="item.id">
+                        <div class="item-title">{{ item.title }}</div>
+                        <span>{{ item.price | currency }} x {{ item.qty }}</span>
+                        <button class="btn" @click="add(item)">+</button>
+                        <button class="btn" @click="remove(item)">-</button>
+                    </li>
+                </transition-group>
             </div>
+            <p v-if="cart.length === 0">No items in the cart.</p>
+            <transition name="fade"><!-- Singular transition -->
+                <p v-if="cart.length > 0">Total {{ total | currency }}</p>
+            </transition>
         </div>
     </div>
 </div>
 
 <!-- Scripts -->
 <script src="/reload/reload.js"></script>
+<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
+<script src="node_modules/vue-resource/dist/vue-resource.js"></script>
+<!-- Scroll Loading of Ajax results-->
+<script src="node_modules/scrollmonitor/scrollMonitor.js"></script>
 <script type="text/javascript" src="public/script.js"></script>
 
 </body>

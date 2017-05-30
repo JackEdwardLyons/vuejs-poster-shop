@@ -19,6 +19,14 @@ var instance = axios.create({
   headers: { 'Authorization': 'Client-ID ' + process.env.IMGUR_CLIENT_ID }
 });
 
+/* On a get request to /search/:query, run the following:
+-----------------------------------------------------------
+ * 1. Link to the baseURL above, add the gallery search url.
+ * 2. Append the query (searchterm) from the front end input.
+ * 3. Create a new get request with the entire URL.
+ * 4. send the resulting data to the front end.
+ * 5. use vue-resource $http.get() to grab the data.
+ */
 app.get('/search/:query', function(req, res) {
   const url = 'gallery/search/top/0/?' + querystring.stringify({ q: req.params.query });
   instance.get(url)
